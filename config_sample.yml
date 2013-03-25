@@ -1,0 +1,6 @@
+processlist: h=10.136.86.222,u=sandbox,p=sandbox
+start_interval: 30
+step: 5
+execute: h=10.142.214.140,u=sandbox,p=sandbox
+target_slow_query_count: 2
+verbosity: 4
