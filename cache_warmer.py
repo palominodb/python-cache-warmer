@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+# ============================================================================
+# License: GPL License (see COPYING)
+# Copyright 2013 PalominoDB Inc.
+# Authors:
+# Elmer Medez
+# ============================================================================
+
 """Python Cache Warmer"""
 from pprint import pprint as pp
 import threading
