@@ -12,7 +12,8 @@ Usage
 ```
 usage: cache_warmer.py [-h] [-C CONFIG] [-x PT_QUERY_DIGEST_PATH]
                        [-p PROCESSLIST] [-i START_INTERVAL] [-s STEP]
-                       [-e EXECUTE] [-t TARGET_SLOW_QUERY_COUNT] [-v]
+                       [-e EXECUTE] [-S SOCKET] [-t TARGET_SLOW_QUERY_COUNT]
+                       [-v]
 
 Cache warmer.
 
@@ -33,6 +34,8 @@ optional arguments:
   -e EXECUTE, --execute EXECUTE
                         execute DSN. Execute queries on this DSN (default:
                         None)
+  -S SOCKET, --socket SOCKET
+                        Socket file to use for connection (default: None)
   -t TARGET_SLOW_QUERY_COUNT, --target-slow-query-count TARGET_SLOW_QUERY_COUNT
                         Target slow query count to look for before terminating
                         pt-query-digest script. (default: 2)
