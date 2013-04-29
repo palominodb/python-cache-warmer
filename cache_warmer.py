@@ -70,6 +70,9 @@ class OptionsBuilder(object):
         parser.add_argument('-e', '--execute',
             help='execute DSN. Execute queries on this DSN')
 
+        parser.add_argument('-S', '--socket',
+            help='Socket file to use for connection')
+
         parser.add_argument('-t', '--target-slow-query-count',
             default=2, type=int,
             help='Target slow query count to look for before terminating pt-query-digest script.')
@@ -94,6 +97,7 @@ class OptionsBuilder(object):
         opts['start_interval'] = args.start_interval
         opts['step'] = args.step
         opts['execute'] = args.execute
+        opts['socket'] = args.socket
         opts['target_slow_query_count'] = args.target_slow_query_count
         opts['verbosity'] = args.verbosity
 
@@ -117,6 +121,10 @@ def run_pt_query_digest(interval):
     #pt-query-digest --processlist h=10.136.79.115,u=sandbox,p=sandbox --interval 5 --filter '$event->{arg} =~ m/^SELECT/i' --execute h=10.143.15.238,u=sandbox,p=sandbox
     cmd = "%s --processlist %s --interval %s --filter '$event->{arg} =~ m/^SELECT/i' --execute %s"
     cmd = cmd % (OPTS.pt_query_digest_path, OPTS.processlist, interval, OPTS.execute)
+
+    if OPTS.socket:
+        cmd += (' --socket %s' % (OPTS.socket,))
+
     if v >= 2:
         print 'cmd:', cmd
     args = shlex.split(cmd)
@@ -160,6 +168,8 @@ def get_slow_query_count_on_execute_instance():
         cmd += ' -u %s' % (pdsn['u'],)
     if 'p' in pdsn:
         cmd += ' -p%s' % (pdsn['p'],)
+    if 'S' in pdsn:
+        cmd += ' -S %s' % (pdsn['S'],)
     cmd += ' status'
     if v >= 2:
         print 'cmd:', cmd
