@@ -220,6 +220,7 @@ def start_main():
             print 'Starting %s with interval=%s' % (
                 OPTS.pt_query_digest_path, interval)
             pqdp = run_pt_query_digest(interval)
+            time.sleep(interval + 10)
             if pqdp:
                 while True:
                     try:
