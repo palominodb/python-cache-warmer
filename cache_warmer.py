@@ -77,6 +77,10 @@ class OptionsBuilder(object):
             default=2, type=int,
             help='Target slow query count to look for before terminating pt-query-digest script.')
 
+        parser.add_argument('-T', '--consecutive-target-met-limit',
+            default=3, type=int,
+            help='The number of times target slow query count was met consecutively to look for before actually terminating pt-query-digest script.')
+
         parser.add_argument('-v', '--verbosity',
             action='count',
             help="verbose, can be supplied many times to increase verbosity")
@@ -99,6 +103,7 @@ class OptionsBuilder(object):
         opts['execute'] = args.execute
         opts['socket'] = args.socket
         opts['target_slow_query_count'] = args.target_slow_query_count
+        opts['consecutive_target_met_limit'] = args.consecutive_target_met_limit
         opts['verbosity'] = args.verbosity
 
         return opts
@@ -222,6 +227,8 @@ def start_main():
             pqdp = run_pt_query_digest(interval)
             time.sleep(interval + 10)
             if pqdp:
+                start_checking_for_target = False
+                consecutive_target_met_count = 0
                 while True:
                     try:
                         cnt = get_slow_query_count_on_execute_instance()
@@ -234,18 +241,35 @@ def start_main():
                                     print 'First check, retrieving another slow query count...'
                                 last_cnt = cnt
                             else:
-                                new_slow_queries = cnt - last_cnt
-                                last_cnt = cnt
-                                if new_slow_queries:
+                                if start_checking_for_target:
+                                    new_slow_queries = cnt - last_cnt
+                                    last_cnt = cnt
                                     print "Found %s new slow query(ies) on 'execute' instance." % (
                                         new_slow_queries,)
-                                if new_slow_queries <= OPTS.target_slow_query_count:
-                                    # exit loop and re-run pqd
-                                    print 'Target slow query count met.'
+                                    if new_slow_queries <= OPTS.target_slow_query_count:
+                                        consecutive_target_met_count += 1
+                                        print 'Target slow query count was met consecutively %sx.' % (consecutive_target_met_count,)
 
-                                    # reset last count
-                                    last_cnt = None
-                                    break
+                                        if consecutive_target_met_count >= OPTS.consecutive_target_met_limit:
+                                            print 'Consecutive target met limit has been reached.'
+
+                                            # exit loop and re-run pqd
+                                            # reset last count
+                                            last_cnt = None
+                                            break
+                                    else:
+                                        if consecutive_target_met_count > 0:
+                                            # reset consecutive_target_met_count
+                                            consecutive_target_met_count = 0
+                                            print 'Counsecutive target met count was reset to %s.' % (consecutive_target_met_count,)
+                                elif not start_checking_for_target and cnt > last_cnt:
+                                    start_checking_for_target = True
+                                    last_cnt = cnt
+                                    if v >= 1:
+                                        print 'Slow query count has increased, will now start checking for target slow query count.'
+                                else:
+                                    if v >= 1:
+                                        print 'Slow query count has not changed, waiting for it to increase first before starting to check for target slow query count.'
                         time.sleep(0)
                     except KeyboardInterrupt:
                         # Stop checking status and proceed with another instance of pqd
