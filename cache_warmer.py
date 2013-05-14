@@ -134,7 +134,8 @@ class OptionsBuilder(object):
 def run_pt_query_digest(interval):
     v = OPTS.verbosity
     #pt-query-digest --processlist h=10.136.79.115,u=sandbox,p=sandbox --interval 5 --filter '$event->{arg} =~ m/^SELECT/i' --execute h=10.143.15.238,u=sandbox,p=sandbox
-    cmd = "%s --processlist %s --interval %s --filter '$event->{arg} =~ m/^\s*(?:\/\*.*?\*\/)?\s*SELECT/i' --execute %s"
+    #cmd = "%s --processlist %s --interval %s --filter '$event->{arg} =~ m/^\s*(?:\/\*.*?\*\/)?\s*SELECT/i' --execute %s"
+    cmd = "%s --processlist %s --interval %s --filter '$event->{fingerprint} =~ m/^SELECT/i' --execute %s"
     cmd = cmd % (OPTS.pt_query_digest_path, OPTS.processlist, interval, OPTS.execute)
 
     if OPTS.socket:
@@ -229,7 +230,7 @@ def start_main():
         pp(OPTS.__dict__)
 
     last_cnt = None
-    interval = 1
+    interval = 0.1
     try:
         #pqdp = run_pt_query_digest(interval)
         #time.sleep(OPTS.termination_delay)
