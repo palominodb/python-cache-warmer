@@ -242,7 +242,7 @@ class App(object):
                 count = self._get_slow_query_count_on_execute_instance()
                 count_checker.check(count)
                 if (count_checker.consecutive_target_met_count >=
-                    self.args.consecutive_target_met_limit):
+                        self.args.consecutive_target_met_limit):
                     break
                 if time.time() - start_time >= self.args.max_execution_time:
                     print 'Maximum execution time was reached.'
