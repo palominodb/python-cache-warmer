@@ -95,7 +95,7 @@ class SlowQueryCountChecker(object):
 
             # Reset count if consecutive target met limit was reached
             if (self.consecutive_target_met_count >=
-                self._args.consecutive_target_met_limit):
+                    self._args.consecutive_target_met_limit):
                 print 'Consecutive target met limit was reached.'
                 self._last_count = None
 
