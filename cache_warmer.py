@@ -189,10 +189,9 @@ class App(object):
 
         if v >= 2:
             print 'cmd:', cmd
-        popen_args = shlex.split(cmd)
 
         print 'Starting %s' % (self.args.pt_query_digest_path,)
-        p = subprocess.Popen(popen_args, stdout=self.null, stderr=self.null)
+        p = subprocess.Popen(shlex.split(cmd), stdout=self.null, stderr=self.null)
         if v >= 1:
             '%s started.' % (self.args.pt_query_digest_path,)
         if p:
