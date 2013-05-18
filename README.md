@@ -10,7 +10,7 @@ Install Requirements
 Usage
 -----
 ```
-usage: cache_warmer.py [-h] [-C CONFIG] [-x PT_QUERY_DIGEST_PATH]
+usage: cache_warmer.py [-h] [-x PT_QUERY_DIGEST_PATH] [-i INTERVAL]
                        [-p PROCESSLIST] [-e EXECUTE] [-S SOCKET]
                        [-t TARGET_SLOW_QUERY_COUNT]
                        [-T CONSECUTIVE_TARGET_MET_LIMIT]
@@ -20,11 +20,12 @@ Cache warmer.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -C CONFIG, --config CONFIG
-                        config file to load options from (default: None)
   -x PT_QUERY_DIGEST_PATH, --pt-query-digest-path PT_QUERY_DIGEST_PATH
                         pt-query-digest path. (default: /usr/bin/pt-query-
                         digest)
+  -i INTERVAL, --interval INTERVAL
+                        The value of interval, in seconds, to be passed to pt-
+                        query-digest. (default: 0.1)
   -p PROCESSLIST, --processlist PROCESSLIST
                         processlist DSN. Poll this DSN's processlist for
                         queries, with --interval sleep between. (default:
@@ -52,35 +53,52 @@ optional arguments:
 
 Sample Usage and Output
 -----------------------
+
 ```
-(py26)elmer@ElmerSM840:~/palominodb/src/python-cache-warmer$ ./cache_warmer.py -p h=localhost,u=sandbox,p=sandbox -e h=192.168.43.4,u=sandbox,p=sandbox -t 2 -T 2 -m 60 -d 5 -vv
+$ ./cache_warmer.py -p h=localhost,u=sandbox,p=sandbox -e h=192.168.2.110,u=sandbox,p=sandbox -t 4 -T 2 -m 60 -d 5 -vv
+cmd: /usr/bin/pt-query-digest --processlist h=localhost,u=sandbox,p=sandbox --interval 0.1 --filter '$event->{fingerprint} =~ m/^SELECT/i' --execute h=192.168.2.110,u=sandbox,p=sandbox
 Starting /usr/bin/pt-query-digest
-cmd: /usr/bin/pt-query-digest --processlist h=localhost,u=sandbox,p=sandbox --interval 1 --filter '$event->{arg} =~ m/^SELECT/i' --execute h=192.168.43.4,u=sandbox,p=sandbox
 pt-query-digest terminated.
-cmd: mysqladmin -h 192.168.43.4 -u sandbox -psandbox status
-Slow query count: 28
+Slow query count: 77
 First check, waiting for another slow query count...
+cmd: /usr/bin/pt-query-digest --processlist h=localhost,u=sandbox,p=sandbox --interval 0.1 --filter '$event->{fingerprint} =~ m/^SELECT/i' --execute h=192.168.2.110,u=sandbox,p=sandbox
 Starting /usr/bin/pt-query-digest
-cmd: /usr/bin/pt-query-digest --processlist h=localhost,u=sandbox,p=sandbox --interval 1 --filter '$event->{arg} =~ m/^SELECT/i' --execute h=192.168.43.4,u=sandbox,p=sandbox
 pt-query-digest terminated.
-cmd: mysqladmin -h 192.168.43.4 -u sandbox -psandbox status
-Slow query count: 30
+Slow query count: 81
 Slow query count has increased, will now start checking for target slow query count.
+cmd: /usr/bin/pt-query-digest --processlist h=localhost,u=sandbox,p=sandbox --interval 0.1 --filter '$event->{fingerprint} =~ m/^SELECT/i' --execute h=192.168.2.110,u=sandbox,p=sandbox
 Starting /usr/bin/pt-query-digest
-cmd: /usr/bin/pt-query-digest --processlist h=localhost,u=sandbox,p=sandbox --interval 1 --filter '$event->{arg} =~ m/^SELECT/i' --execute h=192.168.43.4,u=sandbox,p=sandbox
 pt-query-digest terminated.
-cmd: mysqladmin -h 192.168.43.4 -u sandbox -psandbox status
-Slow query count: 32
-Found 2 new slow query(ies) on 'execute' instance.
+Slow query count: 85
+Found 4 new slow query(ies) on 'execute' instance.
 Target slow query count was met consecutively 1x.
+cmd: /usr/bin/pt-query-digest --processlist h=localhost,u=sandbox,p=sandbox --interval 0.1 --filter '$event->{fingerprint} =~ m/^SELECT/i' --execute h=192.168.2.110,u=sandbox,p=sandbox
 Starting /usr/bin/pt-query-digest
-cmd: /usr/bin/pt-query-digest --processlist h=localhost,u=sandbox,p=sandbox --interval 1 --filter '$event->{arg} =~ m/^SELECT/i' --execute h=192.168.43.4,u=sandbox,p=sandbox
 pt-query-digest terminated.
-cmd: mysqladmin -h 192.168.43.4 -u sandbox -psandbox status
-Slow query count: 34
-Found 2 new slow query(ies) on 'execute' instance.
+Slow query count: 89
+Found 4 new slow query(ies) on 'execute' instance.
 Target slow query count was met consecutively 2x.
 Consecutive target met limit has been reached.
-(py26)elmer@ElmerSM840:~/palominodb/src/python-cache-warmer$
+$
+```
+Using a file to store arguments (use @ to prefix file), the above command is equivalent to:
+```
+$ ./cache_warmer.py @./args.txt
+```
 
+Contents of args.txt:
+```
+-p
+h=localhost,u=sandbox,p=sandbox
+-e
+h=192.168.2.110,u=sandbox,p=sandbox
+-t
+4
+-T
+2
+-m
+60
+-d
+5
+-vvvv
 ```
