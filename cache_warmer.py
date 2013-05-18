@@ -237,8 +237,6 @@ class App(object):
 
         try:
             start_time = time.time()
-            elapsed_time = time.time() - start_time
-
             count_checker = SlowQueryCountChecker(self.args)
             while True:
                 self._run_pt_query_digest()
@@ -247,8 +245,7 @@ class App(object):
                 if (count_checker.consecutive_target_met_count >=
                     self.args.consecutive_target_met_limit):
                     break
-                elapsed_time = time.time() - start_time
-                if elapsed_time >= self.args.max_execution_time:
+                if time.time() - start_time >= self.args.max_execution_time:
                     print 'Maximum execution time was reached.'
                     break
 
