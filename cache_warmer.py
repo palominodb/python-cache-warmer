@@ -33,8 +33,8 @@ def parse_dsn(dsn):
 
     fld_value_map = dict(
         [(i[0].strip(), i[2].strip())   # i is equal to [field, '=', value]
-         for i in [word.partition('=')
-                   for word in dsn.split(',')]])
+            for i in [word.partition('=')
+                for word in dsn.split(',')]])
     return fld_value_map
 
 
