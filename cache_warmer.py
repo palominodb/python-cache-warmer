@@ -197,8 +197,8 @@ class App(object):
         if p:
             time.sleep(self.args.termination_delay)
             p.terminate()
-            p.wait()
-            print 'pt-query-digest terminated.'
+            # SIGTERM has been sent, don't wait for the process to terminate
+            # as we need to launch another process right away
 
 
     def _get_slow_query_count_on_execute_instance(self):
@@ -257,3 +257,4 @@ class App(object):
 
 if __name__ == '__main__':
     App().main()
+    sys.exit()
